@@ -47,7 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(vigo).title("GARAJE TITO"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(vigo));
 
-        LatLng center = new LatLng(42.23785925938276, -8.714309334754944);
+        LatLng center = new LatLng(42.23781755753058, -8.713343739509583);
         int radius = 100;
 
 
