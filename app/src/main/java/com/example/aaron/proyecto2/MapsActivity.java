@@ -1,5 +1,6 @@
 package com.example.aaron.proyecto2;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -7,6 +8,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -22,6 +25,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
     }
 
 
@@ -40,7 +44,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
         LatLng vigo = new LatLng(42.23776344437179, -8.714438080787659 );
-        mMap.addMarker(new MarkerOptions().position(vigo).title("MARCA"));
+        mMap.addMarker(new MarkerOptions().position(vigo).title("GARAJE TITO"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(vigo));
+
+        LatLng center = new LatLng(42.23785925938276, -8.714309334754944);
+        int radius = 100;
+
+
+
+
+        CircleOptions circleOptions = new CircleOptions()
+                .center(center)
+                .radius(radius)
+                .strokeColor(Color.parseColor("#0D47A1"))
+                .strokeWidth(4)
+                .fillColor(Color.argb(32, 33, 150, 243));
+
+        Circle circle = mMap.addCircle(circleOptions);
     }
 }
