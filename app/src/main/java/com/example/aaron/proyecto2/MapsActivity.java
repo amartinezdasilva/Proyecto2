@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -29,6 +31,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     public static double Latitud, Longitud;
     GoogleApiClient apiClient;
+    public static Marker marcaP;
     int PETICION_PERMISO_LOCALIZACION =1;
     private static final String LOGTAG = "android-localizacion";
     @Override
@@ -61,16 +64,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
 
         // Add a marker in Sydney and move the camera
-        LatLng vigo = new LatLng(42.23776344437179, -8.714438080787659 );
-        mMap.addMarker(new MarkerOptions().position(vigo).title("GARAJE TITO"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(vigo));
+        LatLng garaje = new LatLng(42.23776344437179, -8.714438080787659 );
+        marcaP =mMap.addMarker(new MarkerOptions().position(garaje).title("GARAJE TITO"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(garaje));
+        marcaP.setVisible(False);
+
+
 
         LatLng center = new LatLng(42.23781755753058, -8.713343739509583);
         int radius = 100;
 
-
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Mostrar diálogo explicativo
+            } else {
+                // Solicitar permiso
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        PETICION_PERMISO_LOCALIZACION);
+            }
+        }
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
 
         CircleOptions circleOptions = new CircleOptions()
@@ -82,6 +105,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Circle circle = mMap.addCircle(circleOptions);
     }
+
 
     private void updateUI(Location loc) {
         if (loc != null) {
@@ -129,9 +153,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PETICION_PERMISO_LOCALIZACION) {
-            if (grantResults.length == 1
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            if (permissions.length > 0 &&
+                    permissions[0].equals(android.Manifest.permission.ACCESS_FINE_LOCATION) &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mMap.setMyLocationEnabled(true);
+            } else {
+                Toast.makeText(this, "Error de permisos", Toast.LENGTH_LONG).show();
                 //Permiso concedido
 
                 @SuppressWarnings("MissingPermission")
@@ -140,12 +177,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 updateUI(lastLocation);
 
-            } else {
-                //Permiso denegado:
-                //Deberíamos deshabilitar toda la funcionalidad relativa a la localización.
-
-                Log.e(LOGTAG, "Permiso denegado");
             }
         }
     }
+
 }
