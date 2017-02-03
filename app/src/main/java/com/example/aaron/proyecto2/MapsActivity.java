@@ -26,14 +26,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
     public static double Latitud, Longitud;
     GoogleApiClient apiClient;
     public static Marker marcaP;
-    int PETICION_PERMISO_LOCALIZACION =1;
+    int PETICION_PERMISO_LOCALIZACION = 1;
     private static final String LOGTAG = "android-localizacion";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,14 +66,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
-        mMap.setOnMapLongClickListener(this);
+        // mMap.setOnMapLongClickListener(this);
 
         // Add a marker in Sydney and move the camera
-        LatLng garaje = new LatLng(42.23776344437179, -8.714438080787659 );
-        marcaP =mMap.addMarker(new MarkerOptions().position(garaje).title("GARAJE TITO"));
+        LatLng garaje = new LatLng(42.23776344437179, -8.714438080787659);
+        marcaP = mMap.addMarker(new MarkerOptions().position(garaje).title("GARAJE TITO"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(garaje));
-        marcaP.setVisible(False);
-
+        // marcaP.setVisible(False);
 
 
         LatLng center = new LatLng(42.23781755753058, -8.713343739509583);
@@ -109,8 +109,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateUI(Location loc) {
         if (loc != null) {
-            Latitud.loc.getLatitude();
-            Longitud.loc.getLongitude();
+            Latitud = loc.getLatitude();
+            Longitud = loc.getLongitude();
         } else {
             Toast.makeText(this, "Latitud y Longitud desconocidas", Toast.LENGTH_LONG).show();
         }
@@ -151,6 +151,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.e(LOGTAG, "Error grave al conectar con Google Play Services");
     }
+
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PETICION_PERMISO_LOCALIZACION) {
             if (permissions.length > 0 &&
@@ -181,4 +182,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+        updateUI(lastLocation);
+        String str= String.valueOf(lastLocation);
+        Toast.makeText(this, str, Toast.LENGTH_LONG).show();
+
+    }
 }
