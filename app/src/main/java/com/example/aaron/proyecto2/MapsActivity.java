@@ -30,6 +30,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     public static double Latitud, Longitud;
+    public static double lat2=42.23776344437179;
+    public static double lng2=-8.714438080787659;
     GoogleApiClient apiClient;
     public static Marker marcaP;
     int PETICION_PERMISO_LOCALIZACION = 1;
@@ -69,10 +71,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // mMap.setOnMapLongClickListener(this);
 
         // Add a marker in Sydney and move the camera
-        LatLng garaje = new LatLng(42.23776344437179, -8.714438080787659);
+        LatLng garaje = new LatLng(lat2, lng2);
         marcaP = mMap.addMarker(new MarkerOptions().position(garaje).title("GARAJE TITO"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(garaje));
-        // marcaP.setVisible(False);
+        marcaP.setVisible(false);
 
 
         LatLng center = new LatLng(42.23781755753058, -8.713343739509583);
@@ -113,6 +115,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Longitud = loc.getLongitude();
         } else {
             Toast.makeText(this, "Latitud y Longitud desconocidas", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void calcularDis(){
+        double earthRadius = 6372.795477598;
+
+        double dLat = Math.toRadians(Latitud-lat2);
+        double dLng = Math.toRadians(Longitud-lng2);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(Latitud)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double dist = earthRadius * c;
+        double distMet=dist*1000;
+        String distancia=String.valueOf(distMet);
+
+        Toast.makeText(this, distancia, Toast.LENGTH_LONG).show();
+
+        if(distMet<=20){
+            marcaP.setVisible(true);
+        }else {
+            marcaP.setVisible(false);
         }
     }
 
@@ -197,8 +221,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
         updateUI(lastLocation);
-        String str= String.valueOf(lastLocation);
-        Toast.makeText(this, str, Toast.LENGTH_LONG).show();
+        calcularDis();
+
 
     }
 }
